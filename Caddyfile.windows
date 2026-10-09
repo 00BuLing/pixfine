@@ -1,0 +1,20 @@
+:80 {
+	@image_optimizer host image-optimizer.tietiezhi.xyz image-optimizer.tietiezhi.beisi.tech
+	handle @image_optimizer {
+		reverse_proxy 127.0.0.1:8791
+	}
+
+	@sub2_optimizer {
+		host sub2api.tietiezhi.xyz sub2api.tietiezhi.beisi.tech
+		path /_image_optimizer/*
+	}
+	handle @sub2_optimizer {
+		uri strip_prefix /_image_optimizer
+		reverse_proxy 127.0.0.1:8791
+	}
+
+	# Existing Docker Caddy serves every unrelated hostname on its alternate host port.
+	handle {
+		reverse_proxy 127.0.0.1:8082
+	}
+}

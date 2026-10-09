@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+api-key.txt
+service-api-key.txt
+password-hash.txt
+payment.json
+
+data/
+*.db
+*.db-*
+*.log

@@ -1,0 +1,14 @@
+services:
+  image-optimizer-api:
+    image: caddy:2-alpine
+    container_name: terln-image-optimizer-api
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:8790:8790"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8790/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
