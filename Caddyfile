@@ -1,0 +1,6 @@
+:8790 {
+	reverse_proxy host.docker.internal:8791
+	request_body {
+		max_size 48MB
+	}
+}

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Image Optimizer</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main id="login" class="login-shell">
+    <section class="login-card">
+      <p class="eyebrow">TERLN GPU SERVICE</p>
+      <h1>Image Optimizer</h1>
+      <p class="muted">独立图像优化调度与计费控制台</p>
+      <form id="login-form">
+        <label for="password">访问密码</label>
+        <input id="password" type="password" autocomplete="current-password" autofocus required placeholder="请输入密码">
+        <button type="submit">进入控制台</button>
+        <p id="login-error" class="error"></p>
+      </form>
+    </section>
+  </main>
+
+  <main id="dashboard" class="dashboard hidden">
+    <header class="topbar">
+      <div><p class="eyebrow">TERLN GPU SERVICE</p><h1>Image Optimizer</h1></div>
+      <div class="top-actions"><span id="health-dot" class="health">正在同步</span><button id="logout" class="secondary">退出</button></div>
+    </header>
+
+    <section class="hero-grid">
+      <article class="balance-card">
+        <span>可用余额</span><strong id="balance">¥0.000</strong>
+        <div class="balance-meta"><span>冻结 <b id="reserved">¥0.000</b></span><span>累计充值 <b id="total-topup">¥0.000</b></span><span>累计消费 <b id="total-spend">¥0.000</b></span></div>
+        <button id="open-topup">充值余额</button>
+      </article>
+      <article class="metric"><span>今日成功</span><strong id="today-success">0</strong></article>
+      <article class="metric"><span>等待队列</span><strong id="queue-count">0</strong></article>
+      <article class="metric"><span>成功率</span><strong id="success-rate">0%</strong></article>
+      <article class="metric"><span>今日消费</span><strong id="today-spend">¥0.000</strong></article>
+      <article class="metric"><span>平均处理</span><strong id="avg-process">0s</strong></article>
+      <article class="metric"><span>今日失败</span><strong id="today-failed">0</strong></article>
+    </section>
+
+    <section class="price-strip">
+      <div><span>1K 优化</span><b>¥0.032 / 次</b></div>
+      <div><span>2K 优化</span><b>¥0.048 / 次</b></div>
+      <div><span>4K 优化</span><b>¥0.064 / 次</b></div>
+      <p>费用由 terln-api 独立承担；任务失败自动退回冻结金额。</p>
+    </section>
+
+    <section class="charts-grid">
+      <article class="panel chart-wide"><div class="panel-title"><div><p class="eyebrow">7 DAY ACTIVITY</p><h2>调用趋势</h2></div><span class="chart-legend"><i class="success-dot"></i>成功 <i class="failed-dot"></i>失败</span></div><canvas id="calls-chart" height="190"></canvas></article>
+      <article class="panel"><div class="panel-title"><div><p class="eyebrow">MODEL TIERS</p><h2>分辨率分布</h2></div></div><div class="donut-wrap"><div id="tier-donut" class="donut"><span id="tier-total">0</span></div><div id="tier-legend" class="donut-legend"></div></div></article>
+      <article class="panel"><div class="panel-title"><div><p class="eyebrow">GPU LATENCY</p><h2>处理耗时</h2></div></div><canvas id="latency-chart" height="190"></canvas></article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title"><div><p class="eyebrow">LIVE QUEUE</p><h2>调度任务</h2></div><span id="last-sync" class="muted"></span></div>
+      <div class="table-wrap"><table><thead><tr><th>请求 ID</th><th>尺寸</th><th>档位 / 费用</th><th>处理方式</th><th>链路</th><th>排队 / 处理</th><th>状态</th><th>时间</th></tr></thead><tbody id="jobs"></tbody></table></div>
+      <div id="jobs-pagination" class="pagination"></div>
+    </section>
+
+    <section class="split-grid">
+      <section class="panel"><div class="panel-title"><h2>余额流水</h2></div><div class="table-wrap"><table><thead><tr><th>类型</th><th>金额</th><th>余额</th><th>说明</th><th>时间</th></tr></thead><tbody id="ledger"></tbody></table></div><div id="ledger-pagination" class="pagination"></div></section>
+      <section class="panel"><div class="panel-title"><h2>充值订单</h2></div><div class="table-wrap"><table><thead><tr><th>订单号</th><th>方式</th><th>金额</th><th>状态</th><th>时间</th></tr></thead><tbody id="orders"></tbody></table></div><div id="orders-pagination" class="pagination"></div></section>
+    </section>
+  </main>
+
+  <dialog id="topup-dialog">
+    <button id="close-topup" class="dialog-close" aria-label="关闭">×</button>
+    <p class="eyebrow">RECHARGE</p><h2>充值独立余额</h2>
+    <div id="topup-form-wrap">
+      <label for="amount">充值金额</label>
+      <div class="amount-input"><span>¥</span><input id="amount" type="number" min="1" max="500" step="0.01" value="10"></div>
+      <div class="presets"><button data-amount="5">¥5</button><button data-amount="10">¥10</button><button data-amount="20">¥20</button><button data-amount="50">¥50</button></div>
+      <div class="pay-methods">
+        <button data-provider="alipay"><span class="button-spinner" aria-hidden="true"></span><span class="pay-button-label">支付宝</span></button>
+        <button data-provider="wechat"><span class="button-spinner" aria-hidden="true"></span><span class="pay-button-label">微信支付</span></button>
+      </div>
+      <p id="topup-loading" class="topup-loading hidden" role="status" aria-live="polite">正在创建充值订单，请稍候…</p>
+      <p id="topup-error" class="error"></p>
+    </div>
+    <div id="checkout" class="checkout hidden">
+      <div class="checkout-media">
+        <img id="qr" alt="支付二维码">
+        <iframe id="pay-frame" class="pay-frame hidden" title="支付宝收银台"></iframe>
+        <div id="checkout-loading" class="checkout-loading hidden" role="status" aria-live="polite"><span class="loading-spinner" aria-hidden="true"></span><span id="checkout-loading-text">正在加载支付二维码…</span></div>
+      </div>
+      <p id="checkout-title"></p><p id="checkout-order" class="mono muted"></p>
+      <a id="pay-link" class="pay-link hidden" target="_blank" rel="noopener">打开支付页面</a>
+      <p class="scan-tip">支付完成后页面将自动更新余额。支付宝扫码异常时请点击“打开支付页面”继续支付。</p><button id="new-order" class="secondary">返回</button>
+    </div>
+  </dialog>
+  <script src="/app.js"></script>
+</body>
+</html>
